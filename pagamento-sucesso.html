@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="HrYyv82okzws-T-IiPVyFCxjosxIztCN8bkByUqLouE" />
+    <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
+    
+    <!-- SEO Básico -->
+    <meta name="description" content="Envie seu contrato e receba uma análise inteligente e detalhada com apoio de IA. Rápido e confiável.">
+    <meta name="keywords" content="análise de contrato, IA, inteligência artificial, contrato de compra e venda, cláusulas contratuais, revisão de contrato">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph (para compartilhamento em redes sociais) -->
+    <meta property="og:title" content="Dra.Cláusula | Análise Inteligente de Contratos">
+    <meta property="og:description" content="Receba uma análise completa do seu contrato com ajuda de inteligência artificial.">
+    <meta property="og:image" content="https://dra-clausula.onrender.com/banner.png"> <!-- Substitua pela URL da imagem -->
+    <meta property="og:url" content="https://dra-clausula.onrender.com/"> <!-- Substitua pela URL real do seu site -->
+    <meta property="og:type" content="website">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            padding: 40px; /* Padding padrão para telas maiores */
+            max-width: 600px;
+            margin: auto;
+            position: relative; /* Para o posicionamento absoluto do overlay */
+        }
+
+        /* Estilo para a imagem - agora posicionada diretamente no corpo e centralizada */
+        .initial-image {
+            display: block; /* Para permitir margin: auto para centralização */
+            max-width: 100%; /* Garante que a imagem não ultrapasse a largura do contêiner */
+            height: auto; /* Mantém a proporção da imagem */
+            margin: 0 auto 30px auto; /* Centraliza a imagem e adiciona espaço abaixo */
+            border-radius: 10px; /* Mantém o estilo arredondado */
+            box-shadow: 0 0 15px rgba(0,0,0,0.15); /* Sombra um pouco mais proeminente */
+        }
+
+        /* Estilo para a seção de introdução */
+        .introduction {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-bottom: 30px; /* Espaçamento entre a introdução e o formulário */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .introduction p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .introduction ul {
+            list-style: none; /* Remove marcadores de lista padrão */
+            padding: 0;
+            text-align: left; /* Alinha os itens da lista à esquerda */
+            margin: 0 auto; /* Centraliza a lista, se o .introduction tiver uma largura definida */
+            max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
+        }
+
+        .introduction ul li {
+            background-color: #eaf6ff; /* Cor de fundo suave para cada item da lista */
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db; /* Borda lateral para destaque */
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        /* Estilo para a chamada de ação da política de privacidade */
+        .privacy-call-to-action {
+            text-align: center;
+            margin-bottom: 30px; /* Espaço antes do formulário */
+        }
+
+        .privacy-button {
+            background-color: #5d9cec; /* Um tom de azul diferente */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .privacy-button:hover {
+            background-color: #4a89dc;
+        }
+
+        /* Estilo para a seção da política de privacidade */
+        .privacy-policy-section {
+            background-color: #ffffff;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .privacy-policy-section h2,
+        .privacy-policy-section h3 {
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .privacy-policy-section ul {
+            list-style-type: disc; /* Marcadores de lista padrão */
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .privacy-policy-section ul li {
+            background-color: transparent; /* Remove background dos itens da lista */
+            padding: 0;
+            border-left: none;
+            margin-bottom: 5px;
+        }
+
+        /* Estilos para o formulário desabilitado/habilitado */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            opacity: 0.5; /* Inicialmente opaco */
+            pointer-events: none; /* Desabilita interações com o formulário */
+            transition: opacity 0.3s ease; /* Transição suave para habilitação */
+        }
+
+        form.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Estilo para a nova seção de email e botão de pagamento */
+        .payment-email-section {
+            background-color: #ffffff;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center; /* Centraliza o botão */
+        }
+        .payment-email-section label {
+            text-align: left; /* Alinha labels à esquerda dentro da nova seção */
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Style for validation error messages */
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none; /* Hidden by default */
+            text-align: left; /* Garante alinhamento esquerdo para mensagens */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Adicionado para efeito hover */
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Estilo para botão de pagamento */
+        .payment-button {
+            background-color: #28a745; /* Um verde vibrante para o botão de pagamento */
+            margin-top: 20px; /* Ajustado para dentro da nova seção */
+            margin-bottom: 0px; /* Removido para não criar espaço extra desnecessário */
+        }
+
+        .payment-button:hover {
+            background-color: #218838;
+        }
+
+        /* Estilo para botão desabilitado */
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Estilos para o contêiner principal do conteúdo */
+        .main-content-wrapper {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Quando o overlay de sucesso está ativo, esconde o conteúdo principal */
+        body.show-success-overlay .main-content-wrapper {
+            opacity: 0;
+            pointer-events: none; /* Desabilita interações */
+            display: none; /* Esconde completamente para remover do fluxo do documento */
+        }
+
+        /* Estilos para o contêiner da mensagem de sucesso (overlay) */
+        #mensagem-retorno { /* Este agora é exclusivamente o overlay */
+            position: fixed; /* Fixa na viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+            display: flex; /* Para centralizar o conteúdo */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Garante que fique por cima de tudo */
+            visibility: hidden; /* Inicialmente oculto */
+            opacity: 0; /* Inicialmente transparente */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* Quando a mensagem de sucesso está presente, o overlay fica visível */
+        #mensagem-retorno:not(:empty) {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Styles for the success message container (from email-sucesso.html) */
+        .success-message-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            /* Remover margin: 40px auto; pois o flexbox do #mensagem-retorno já centraliza */
+            text-align: center;
+        }
+        .success-message-container h1 {
+            color: #28a745; /* Verde para sucesso */
+            margin-bottom: 20px;
+        }
+        .success-message-container p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .success-exit-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .success-exit-button:hover {
+            background-color: #2980b9;
+        }
+
+        /* ======================================= */
+        /* Estilo para a nova área de mensagem de status/erro */
+        #status-message-area {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            /* Cor padrão, pode ser alterada via JS */
+            color: #2c3e50; 
+        }
+
+        /* MEDIA QUERIES - RESPONSIVIDADE         */
+        /* ======================================= */
+
+        /* Para telas menores que 768px (geralmente tablets e celulares) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px; /* Reduz o padding do corpo para telas menores */
+            }
+
+            .introduction,
+            form,
+            .privacy-policy-section,
+            .payment-email-section { /* Adicionado para a nova seção */
+                padding: 15px; /* Reduz o padding interno das seções */
+            }
+        }
+
+        /* Para telas muito pequenas (celulares menores) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px; /* Padding ainda menor para telas muito pequenas */
+            }
+
+            .initial-image {
+                margin-bottom: 20px; /* Ajusta o espaçamento da imagem */
+            }
+
+            .introduction p,
+            .introduction ul li,
+            .privacy-policy-section p,
+            .privacy-policy-section ul li,
+            .payment-email-section label, /* Ajuste para labels na nova seção */
+            .payment-email-section input { /* Ajuste para inputs na nova seção */
+                font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content-wrapper">
+        <img src="banner.png" alt="Dra. Cláusula - IA de Análise de Contratos" class="initial-image" />
+
+        <div class="introduction">
+            <p>
+                Sou a Dra. Cláusula, uma Inteligência Artificial avançada, desenvolvida para ser sua especialista em análise de contratos. Meu objetivo é proporcionar clareza e segurança jurídica em seus documentos, transformando a complexidade em informações claras e acionáveis.
+            </p>
+            <p>Com meus algoritmos, você obtém uma análise detalhada e imparcial do seu contrato, sob a perspectiva que você indicar. Nossa análise abrangente inclui:</p>
+            <ul>
+                <li>Identificação de <strong>pontos positivos e negativos</strong> específicos para sua posição no contrato.</li>
+                <li>Avaliação da <strong>segurança das cláusulas de garantia</strong> e cumprimento de obrigações.</li>
+                <li>Análise aprofundada do <strong>tratamento de inadimplência e descumprimento</strong> de termos.</li>
+                <li><strong>Sugestões de alterações</strong> e inclusões de novas cláusulas para proteger seus interesses.</li>
+                <li><strong>Propostas de redação</strong> para cláusulas substitutas, garantindo precisão jurídica.</li>
+            </ul>
+            <p>
+                Antes de iniciar à sua análise, por favor, confira nosso termo de confidencialidade.
+            </p>
+        </div>
+
+        <div class="privacy-call-to-action">
+          <p>
+            <button id="showPrivacyPolicyButton" class="privacy-button">
+              Confira nosso Termo de Confidencialidade
+            </button>
+          </p>
+        </div>
+
+        <div id="privacyPolicy" class="privacy-policy-section" style="display: none;">
+          <h2>Política de Privacidade e Termo de Confidencialidade</h2>
+
+          <h3>1. Introdução</h3>
+          <p>Esta Política de Privacidade tem como objetivo informar como coletamos, utilizamos, armazenamos e protegemos seus dados pessoais e documentos enviados para análise contratual. Valorizamos a sua privacidade, a proteção dos seus dados e assumimos o compromisso com a confidencialidade das informações.</p>
+          <p>Ao utilizar nossos serviços, você concorda com os termos aqui descritos.</p>
+
+          
+          <h3>2. Coleta de Dados</h3>
+          <p>Coletamos as seguintes informações quando você utiliza nosso site:</p>
+          <ul>
+            <li><strong>Dados pessoais:</strong> Nome, e-mail, telefone (se informado) e informações relacionadas à sua participação no contrato (ex.: comprador, vendedor, prestador, etc.);</li>
+            <li><strong>Documentos:</strong> Contratos, anexos e arquivos enviados voluntariamente para análise;</li>
+            <li><strong>Dados de navegação:</strong> Cookies, endereço IP, geolocalização e dados de interação com o site (para melhoria da experiência e segurança).</li>
+          </ul>
+
+          
+          <h3>3. Finalidade do Tratamento de Dados</h3>
+          <p>Seus dados e documentos são utilizados exclusivamente para:</p>
+          <ul>
+            <li>Realizar a análise contratual conforme solicitado;</li>
+            <li>Gerar o parecer ou retorno da análise;</li>
+            <li>Cumprir obrigações legais e regulatórias, se aplicável;</li>
+            <li>Melhorar nossos serviços e sua experiência no site;</li>
+            <li>Enviar comunicações relacionadas aos nossos serviços (opcional e sempre com seu consentimento).</li>
+          </ul>
+
+          
+          <h3>4. Confidencialidade e Segurança das Informações</h3>
+          <p>Nos comprometemos a:</p>
+          <ul>
+            <li>Manter total sigilo sobre os documentos e dados fornecidos;</li>
+            <li>Não divulgar, compartilhar, vender ou repassar seus dados a terceiros, salvo quando exigido por lei;</li>
+            <li>Adotar medidas técnicas e administrativas capazes de proteger os dados pessoais e os documentos contra acessos não autorizados, vazamentos, alterações e destruição;</li>
+            <li>Armazenar os documentos apenas pelo tempo necessário para a prestação do serviço contratado ou para cumprimento de obrigações legais.</li>
+          </ul>
+
+          
+          <h3>5. Armazenamento e Eliminação dos Dados</h3>
+          <p>Seus dados e documentos ficam armazenados em ambiente seguro e controlado;</p>
+          <p>Após a conclusão da análise, os documentos poderão ser excluídos definitivamente, salvo se houver obrigação legal que exija sua retenção por período específico;</p>
+          <p>Você pode solicitar, a qualquer momento, a exclusão de seus dados e documentos.</p>
+
+          
+          <h3>6. Compartilhamento de Dados</h3>
+          <p>Não compartilhamos seus dados com terceiros, salvo nas seguintes hipóteses:</p>
+          <ul>
+            <li>Cumprimento de obrigações legais, regulatórias ou ordens judiciais;</li>
+            <li>Prestadores de serviços estritamente necessários para a operacionalização do site, que também estão contratualmente obrigados a manter sigilo e segurança dos dados.</li>
+          </ul>
+
+          
+          <h3>7. Seus Direitos como Titular dos Dados</h3>
+          <p>Nos termos da LGPD, você tem direito a:</p>
+          <ul>
+            <li>Confirmar a existência de tratamento dos seus dados;</li>
+            <li>Acessar seus dados;</li>
+            <li>Corrigir dados incompletos, inexatos ou desatualizados;</li>
+            <li>Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade;</li>
+            <li>Revogar o consentimento, quando aplicável.</li>
+          </ul>
+          <p>Solicitações podem ser feitas pelo nosso canal de atendimento: [e-mail de contato] ou [formulário no site].</p>
+
+          
+          <h3>8. Cookies e Dados de Navegação</h3>
+          <p>Utilizamos cookies para:</p>
+          <ul>
+            <li>Melhorar a sua experiência de navegação;</li>
+            <li>Realizar análises estatísticas;</li>
+            <li>Garantir funcionalidades essenciais do site.</li>
+          </ul>
+          <p>Você pode gerenciar ou desabilitar cookies nas configurações do seu navegador.</p>
+          
+          <h3>9. Alterações na Política</h3>
+          <p>Podemos atualizar esta Política periodicamente para refletir mudanças nos nossos processos, legislação ou aprimoramento dos nossos serviços. Recomendamos a leitura periódica deste documento.</p>
+
+          
+          <h3>10. Contato</h3>
+          <p>Em caso de dúvidas, solicitações ou exercício dos seus direitos, entre em contato através de:</p>
+          <ul>
+            <li>E-mail: dra.clausula@gmail.com</li>
+            <li>Responsável pelo Tratamento dos Dados: Depto. TI</li>
+          </ul>
+
+          
+          <h3>Termo de Compromisso de Confidencialidade</h3>
+          <p>Reafirmamos nosso compromisso de que todas as informações e documentos fornecidas pelos usuários serão tratados com absoluto sigilo e utilizados única e exclusivamente para os fins de análise contratual, não sendo repassados, divulgados ou compartilhados, salvo quando houver determinação legal.</p>
+
+          
+          <p>✔ Aceite</p>
+          <p>Ao utilizar este site e enviar seus dados e documentos, você declara estar ciente e de acordo com os termos desta Política de Privacidade e Confidencialidade.</p>
+
+          <button id="hidePrivacyPolicyButton" class="privacy-button">Fechar Termo</button>
+        </div>
+
+        <!-- Nova seção para os campos de e-mail e o botão de pagamento -->
+        <div class="payment-email-section" id="paymentEmailSection">
+            <label for="email">Seu E-mail para Pagamento e Análise:</label>
+            <input type="email" id="email" name="email" required>
+            <span id="email-error" class="error-message">Por favor, insira um e-mail válido.</span>
+
+            <label for="confirmEmail">Confirmar E-mail:</label>
+            <input type="email" id="confirmEmail" name="confirmEmail" required>
+            <span id="confirm-email-error" class="error-message">Os e-mails não coincidem.</span>
+
+            <!-- Novo campo para o voucher -->
+            <label for="voucherInput">Caso possua, digite seu Voucher:</label>
+            <input type="text" id="voucherInput" name="voucher">
+            <span id="voucher-message" class="error-message"></span>
+            <!-- Fim do novo campo para o voucher -->
+
+            <button type="button" id="paymentButton" class="payment-button">
+                Realizar Pagamento - Apenas R$ 59,90
+            </button>
+        </div>
+        <!-- Fim da nova seção -->
+
+        <!-- O formulário principal (questionário) começa desabilitado -->
+        <form id="formulario" class="disabled-form">
+            <label for="nome">Seu Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            
+            <label for="parte">Qual o seu papel no contrato?</label>
+            <select id="parte" name="parte" required>
+                <option value="" selected disabled>Selecione uma opção...</option>
+                <option value="comprador">Comprador</option>
+                <option value="vendedor">Vendedor</option>
+                <option value="contratante">Contratante</option>
+                <option value="contratado">Contratado</option>
+                <option value="locador">Locador</option>
+                <option value="locatario">Locatário</option>
+                <option value="credor">Credor</option>
+                <option value="devedor">Devedor</option>
+                <option value="outorgante">Outorgante</option>
+                <option value="outorgado">Outorgado</option>
+                <option value="cessionario">Cessionario</option>
+                <option value="cedente">Cedente</option>
+            </select>
+
+            <label for="arquivo">Arquivo do Contrato (PDF, DOC, DOCX):</label>
+            <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
+
+            <button type="submit" id="submitButton" disabled>Enviar para Análise</button>
+        </form>
+    </div> <!-- Fim de .main-content-wrapper -->
+
+    <div id="status-message-area"></div> <!-- Nova div para mensagens de status/erro -->
+    <div id="mensagem-retorno"></div> <!-- Este é o overlay para a mensagem de sucesso -->
+
+    <script>
+        // Referências aos elementos HTML
+        const formulario = document.getElementById("formulario");
+        const statusMessageArea = document.getElementById("status-message-area"); // Nova referência
+        const mensagemRetornoOverlay = document.getElementById("mensagem-retorno"); // Renomeado para clareza
+        const emailInput = document.getElementById("email");
+        const emailError = document.getElementById("email-error");
+        const confirmEmailInput = document.getElementById("confirmEmail");
+        const confirmEmailError = document.getElementById("confirm-email-error");
+        const submitButton = document.getElementById("submitButton"); // Botão "Enviar para Análise"
+        const paymentButton = document.getElementById("paymentButton"); // Botão "Realizar Pagamento"
+        const paymentEmailSection = document.getElementById("paymentEmailSection"); 
+
+        const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
+        const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
+        const privacyPolicySection = document.getElementById("privacyPolicy");
+        const mainContentWrapper = document.querySelector(".main-content-wrapper"); 
+
+        // Novas referências para o campo do voucher
+        const voucherInput = document.getElementById("voucherInput");
+        const voucherMessage = document.getElementById("voucher-message");
+
+        // URL BASE DA SUA API NO RENDER
+        const API_BASE_URL = "https://contrato-analisador-api.onrender.com";
+        
+        // Gera um user_id único para esta sessão. Isso é armazenado no localStorage para persistir.
+        const USER_ID_KEY = 'draClausulaUserId';
+        const USER_EMAIL_KEY = 'draClausulaUserEmail';
+
+        let userId = localStorage.getItem(USER_ID_KEY);
+        if (!userId) {
+            userId = 'user_' + Date.now() + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem(USER_ID_KEY, userId);
+            console.log("Novo User ID gerado:", userId);
+        } else {
+            console.log("User ID existente:", userId);
+        }
+
+        let itemPrice = "59.90"; // Preço padrão
+
+        function toggleForm(enable) {
+            const formElements = formulario.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                formElements[i].disabled = !enable;
+            }
+            submitButton.disabled = !enable;
+            if (enable) {
+                formulario.classList.add('enabled');
+                formulario.classList.remove('disabled-form');
+            } else {
+                formulario.classList.remove('enabled');
+                formulario.classList.add('disabled-form');
+            }
+        }
+
+        toggleForm(false);
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function doEmailsMatch() {
+            return emailInput.value === confirmEmailInput.value;
+        }
+
+        // Função para exibir a mensagem de sucesso (agora com título dinâmico)
+        function showSuccessOverlay(titleHtml, messageHtml) {
+            mensagemRetornoOverlay.innerHTML = `
+                <div class="success-message-container">
+                    <h1>${titleHtml}</h1>
+                    <p>${messageHtml}</p>
+                    <button class="success-exit-button">Voltar ao Início</button>
+                </div>
+            `;
+            mensagemRetornoOverlay.style.visibility = 'visible';
+            mensagemRetornoOverlay.style.opacity = '1';
+            document.body.classList.add('show-success-overlay');
+
+            document.querySelector('.success-exit-button').addEventListener('click', () => {
+                mensagemRetornoOverlay.style.visibility = 'hidden';
+                mensagemRetornoOverlay.style.opacity = '0';
+                mensagemRetornoOverlay.innerHTML = '';
+                document.body.classList.remove('show-success-overlay');
+                
+                // --- NOVO: Resetar o estado do site para o estado inicial de "não pago" ---
+                emailInput.value = ''; // Limpa o e-mail
+                confirmEmailInput.value = ''; // Limpa a confirmação de e-mail
+                localStorage.removeItem(USER_EMAIL_KEY); // Remove o e-mail do localStorage
+                voucherInput.value = ''; // Limpa o voucher
+                itemPrice = "59.90"; // Reseta o preço
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90"; // Reseta o texto do botão de pagamento
+                paymentButton.style.display = 'block'; // Mostra o botão de pagamento
+                paymentButton.disabled = false; // Garante que o botão de pagamento esteja habilitado
+                toggleForm(false); // Desabilita o formulário principal
+                statusMessageArea.textContent = "Faça sua Análise"; // Reseta a mensagem de status
+                statusMessageArea.style.color = "orange"; // Reseta a cor da mensagem de status
+                // --- FIM DO NOVO RESET ---
+            });
+        }
+
+        async function checkPaymentStatus(currentUserId) {
+            try {
+                statusMessageArea.textContent = "Verificando status do pagamento...";
+                statusMessageArea.style.color = "#FFD700";
+
+                const response = await fetch(`${API_BASE_URL}/api/pagamento/verificar-status?user_id=${currentUserId}`);
+                const data = await response.json();
+
+                if (response.ok && data.status === "approved") {
+                    toggleForm(true);
+                    statusMessageArea.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
+                    statusMessageArea.style.color = "green";
+                    paymentButton.style.display = 'none'; // Esconde apenas o botão de pagamento
+                    
+                    emailInput.style.display = 'block'; 
+                    confirmEmailInput.style.display = 'block';
+                    voucherInput.style.display = 'block';
+                    document.querySelector('label[for="email"]').style.display = 'block';
+                    document.querySelector('label[for="confirmEmail"]').style.display = 'block';
+                    document.querySelector('label[for="voucherInput"]').style.display = 'block';
+                    emailError.style.display = 'none'; 
+                    confirmEmailError.style.display = 'none';
+                    voucherMessage.style.display = 'none';
+                    return true;
+                } else {
+                    statusMessageArea.textContent = "Faça sua Análise"; 
+                    statusMessageArea.style.color = "orange";
+                    paymentButton.style.display = 'block'; 
+                    paymentButton.disabled = false; 
+                    toggleForm(false); 
+                    emailInput.style.display = 'block';
+                    confirmEmailInput.style.display = 'block';
+                    voucherInput.style.display = 'block';
+                    document.querySelector('label[for="email"]').style.display = 'block';
+                    document.querySelector('label[for="confirmEmail"]').style.display = 'block';
+                    document.querySelector('label[for="voucherInput"]').style.display = 'block';
+                    return false;
+                }
+            } catch (error) {
+                statusMessageArea.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
+                statusMessageArea.style.color = "red";
+                paymentButton.style.display = 'block';
+                paymentButton.disabled = false;
+                console.error("Erro ao verificar status de pagamento:", error);
+                emailInput.style.display = 'block';
+                confirmEmailInput.style.display = 'block';
+                voucherInput.style.display = 'block';
+                document.querySelector('label[for="email"]').style.display = 'block';
+                document.querySelector('label[for="confirmEmail"]').style.display = 'block';
+                document.querySelector('label[for="voucherInput"]').style.display = 'block';
+                return false;
+            }
+        }
+        
+        const VALID_VOUCHER_CODE = "DRA001";
+        const VOUCHER_PRICE = "0.01";
+
+        voucherInput.addEventListener('input', () => {
+            const voucherValue = voucherInput.value.trim().toUpperCase();
+            voucherMessage.style.display = "block";
+
+            if (voucherValue === VALID_VOUCHER_CODE) {
+                itemPrice = VOUCHER_PRICE;
+                voucherMessage.textContent = "Voucher aplicado com sucesso! O valor da análise será R$ " + VOUCHER_PRICE.replace('.', ',');
+                voucherMessage.style.color = "green";
+                paymentButton.textContent = `Realizar Pagamento - Apenas R$ ${VOUCHER_PRICE.replace('.', ',')}`;
+            } else if (voucherValue === "") {
+                itemPrice = "59.90";
+                voucherMessage.textContent = "";
+                voucherMessage.style.display = "none";
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90";
+            } else {
+                itemPrice = "59.90";
+                voucherMessage.textContent = "Voucher inválido. Digite um código válido ou prossiga com o pagamento normal.";
+                voucherMessage.style.color = "red";
+                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 59,90";
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const storedEmail = localStorage.getItem(USER_EMAIL_KEY);
+            if (storedEmail) {
+                emailInput.value = storedEmail;
+                confirmEmailInput.value = storedEmail;
+                console.log("E-mail carregado do localStorage:", storedEmail);
+                if (!validateEmail(storedEmail)) {
+                    emailError.style.display = "block";
+                } else {
+                    emailError.style.display = "none";
+                }
+                confirmEmailError.style.display = "none";
+            }
+
+            checkPaymentStatus(userId);
+        });
+
+        showPrivacyPolicyButton.addEventListener("click", function() {
+            privacyPolicySection.style.display = "block";
+            showPrivacyPolicyButton.style.display = "none";
+            privacyPolicySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        hidePrivacyPolicyButton.addEventListener("click", function() {
+            privacyPolicySection.style.display = "none";
+            showPrivacyPolicyButton.style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Evento para o botão de pagamento
+        paymentButton.addEventListener("click", async function() {
+            let validEmail = validateEmail(emailInput.value);
+            let emailsMatch = doEmailsMatch();
+
+            if (!validEmail) {
+                emailError.style.display = "block";
+            } else {
+                emailError.style.display = "none";
+            }
+
+            if (!emailsMatch) {
+                confirmEmailError.style.display = "block";
+            } else {
+                confirmEmailError.style.display = "none";
+            }
+
+            if (!validEmail || !emailsMatch) {
+                statusMessageArea.textContent = "Por favor, corrija os erros de e-mail.";
+                statusMessageArea.style.color = "red";
+                return;
+            }
+
+            localStorage.setItem(USER_EMAIL_KEY, emailInput.value);
+
+            paymentButton.disabled = true;
+            statusMessageArea.textContent = "Processando pagamento...";
+            statusMessageArea.style.color = "#FFD700";
+
+            try {
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('user_email', emailInput.value);
+                formData.append('item_price', itemPrice);
+                formData.append('item_title', "Análise de Contrato Dra. Cláusula"); // Título padrão
+                if (voucherInput.value.trim() !== "") {
+                    formData.append('voucher', voucherInput.value.trim().toUpperCase());
+                }
+
+                const response = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
+                    method: 'POST',
+                    body: formData // Envia FormData, sem Content-Type manual
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.checkout_url) { // Verifica se há 'checkout_url' para sucesso
+                    window.location.href = data.checkout_url;
+                } else if (response.ok && data.status === "approved_voucher_no_payment") {
+                    statusMessageArea.textContent = "Voucher aplicado e acesso liberado! Você pode enviar seu contrato.";
+                    statusMessageArea.style.color = "green";
+                    
+                    paymentButton.style.display = 'none'; 
+                    toggleForm(true); 
+
+                    // Atualizado: Título para sucesso de Voucher
+                    showSuccessOverlay("✅ Voucher Aplicado com Sucesso! ✅", "Seu voucher foi aplicado com sucesso! Agora você pode prosseguir para enviar seu contrato para análise.");
+
+                } else {
+                    statusMessageArea.textContent = data.detail || data.message || "Erro ao iniciar o pagamento. Tente novamente."; 
+                    statusMessageArea.style.color = "red";
+                    paymentButton.disabled = false;
+                }
+            } catch (error) {
+                statusMessageArea.textContent = "Ocorreu um erro inesperado. Verifique sua conexão ou tente mais tarde.";
+                statusMessageArea.style.color = "red";
+                paymentButton.disabled = false;
+                console.error("Erro na requisição de pagamento:", error);
+            }
+        });
+
+        // Evento para o botão "Enviar para Análise" (submitButton)
+        formulario.addEventListener("submit", async function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const nome = document.getElementById("nome").value;
+            const parte = document.getElementById("parte").value;
+            const arquivo = document.getElementById("arquivo").files[0];
+
+            if (!nome || !parte || !arquivo) {
+                statusMessageArea.textContent = "Por favor, preencha todos os campos do formulário.";
+                statusMessageArea.style.color = "red";
+                return;
+            }
+
+            statusMessageArea.textContent = "Enviando contrato para análise...";
+            statusMessageArea.style.color = "#FFD700";
+            submitButton.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('email', localStorage.getItem(USER_EMAIL_KEY));
+                formData.append('nome', nome);
+                formData.append('parte', parte);
+                formData.append('arquivo', arquivo);
+
+                const response = await fetch(`${API_BASE_URL}/api/contrato/analisar`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.mensagem) { 
+                    statusMessageArea.textContent = data.mensagem; 
+                    statusMessageArea.style.color = "green";
+                    // Atualizado: Título para sucesso de Análise de Contrato
+                    showSuccessOverlay("✅ Análise Enviada com Sucesso! ✅", "Seu contrato foi enviado com sucesso! A análise será enviada para o e-mail cadastrado.");
+                    formulario.reset();
+                    toggleForm(false);
+                    // O reset do estado geral do site será feito dentro de showSuccessOverlay
+                } else {
+                    statusMessageArea.textContent = data.detail || data.erro || "Erro ao enviar o contrato para análise. Tente novamente.";
+                    statusMessageArea.style.color = "red";
+                }
+            } catch (error) {
+                statusMessageArea.textContent = "Ocorreu um erro ao enviar o contrato. Verifique sua conexão ou tente mais tarde.";
+                statusMessageArea.style.color = "red";
+                console.error("Erro no envio do contrato:", error);
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
