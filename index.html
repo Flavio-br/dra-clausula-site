@@ -490,7 +490,7 @@
                 Realizar Pagamento - Apenas R$ 19,90
             </button>
         </div>
-        <form id="formulario" style="display: none;">
+        <form id="formulario" style="display: block;">
             <label for="nome">Seu Nome:</label>
             <input type="text" id="nome" name="nome" required>
             
@@ -517,7 +517,7 @@
             <button type="submit" id="submitButton">Enviar para Análise</button>
         </form>
 
-        <div id="version-indicator">v 1.105</div>
+        <div id="version-indicator">v 1.106</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -558,22 +558,17 @@
             console.log("User ID existente:", userId);
         }
 
-        let itemPrice = "19.90"; // Preço padrão 
+        let itemPrice = 19.90"; // Preço padrãogit status
         
 
         // Função para controlar a visibilidade e habilitação do formulário principal
         function toggleFormVisibility(show) {
-            if (show) {
-                formulario.style.display = 'block'; // Mostra o formulário
-                submitButton.disabled = false; // Habilita o botão de envio
-                // O restante dos campos do formulário já é habilitado por padrão quando display: block
-            } else {
-                formulario.style.display = 'none'; // Esconde o formulário
-                submitButton.disabled = true; // Desabilita o botão de envio
-            }
+            // O formulário ficará sempre visível; apenas o envio fica condicionado ao pagamento
+            formulario.style.display = 'block';
+            submitButton.disabled = !show; // Habilita o envio apenas quando show = true (pagamento aprovado)
         }
 
-        // Inicializa o formulário principal como invisível
+// Inicializa o formulário principal como invisível
         toggleFormVisibility(false);
 
         function validateEmail(email) {
@@ -759,6 +754,13 @@
         // Event listener para o formulário principal
         formulario.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            
+            if (submitButton.disabled) {
+                statusMessageArea.textContent = "Aguardando confirmação do pagamento para enviar a análise.";
+                statusMessageArea.style.color = "orange";
+                return;
+            }
 
             submitButton.disabled = true;
             statusMessageArea.textContent = "Enviando contrato para análise...";
