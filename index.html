@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:,">
   <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
@@ -152,10 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append("user_email", email);
       formData.append("user_id", userId);
 
+      const urlCheckout = `${API_BASE_URL}/api/pagamento/criar-checkout`;
+    console.log("Chamando checkout em:", urlCheckout);
+
       const resp = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
         method: "POST",
         body: formData
       });
+      
+    console.log("Status HTTP:", resp.status);
 
       const data = await resp.json();
 
