@@ -334,6 +334,18 @@
                 font-size: 0.9em; /* Reduz ligeiramente o tamanho da fonte */
             }
         }
+    
+        /* === Controle de tela (v1.107): área de envio desabilitada até confirmação do pagamento === */
+        fieldset {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            min-width: 0;
+        }
+        fieldset:disabled {
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body>
@@ -490,7 +502,8 @@
                 Realizar Pagamento - Apenas R$ 19,90
             </button>
         </div>
-        <form id="formulario" style="display: block;">
+        <form id="formulario" style="display: none;">
+            <fieldset id="analysisFieldset" disabled>
             <label for="nome">Seu Nome:</label>
             <input type="text" id="nome" name="nome" required>
             
@@ -515,9 +528,11 @@
             <input type="file" id="arquivo" name="arquivo" accept=".pdf, .doc, .docx" required>
 
             <button type="submit" id="submitButton">Enviar para Análise</button>
-        </form>
+        
+            </fieldset>
+</form>
 
-        <div id="version-indicator">v 1.106</div>
+        <div id="version-indicator">v 1.107</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -528,6 +543,7 @@
         const confirmEmailInput = document.getElementById("confirmEmail");
         const confirmEmailError = document.getElementById("confirm-email-error");
         const submitButton = document.getElementById("submitButton"); 
+        const analysisFieldset = document.getElementById("analysisFieldset"); 
         const paymentButton = document.getElementById("paymentButton"); 
         const paymentEmailSection = document.getElementById("paymentEmailSection"); 
 
@@ -558,17 +574,19 @@
             console.log("User ID existente:", userId);
         }
 
-        let itemPrice = 19.90"; // Preço padrãogit status
+        let itemPrice = "19.90"; // Preço padrão 
         
 
         // Função para controlar a visibilidade e habilitação do formulário principal
         function toggleFormVisibility(show) {
-            // O formulário ficará sempre visível; apenas o envio fica condicionado ao pagamento
+            // O formulário ficará sempre visível; a área de envio fica desabilitada até o pagamento ser aprovado
             formulario.style.display = 'block';
-            submitButton.disabled = !show; // Habilita o envio apenas quando show = true (pagamento aprovado)
+            if (analysisFieldset) analysisFieldset.disabled = !show; // Desabilita todos os campos + botão
+            submitButton.disabled = !show; // redundante (o fieldset já cobre), mas mantém compatibilidade
+        }
         }
 
-// Inicializa o formulário principal como invisível
+        // Inicializa a área de envio como desabilitada (formulário visível)
         toggleFormVisibility(false);
 
         function validateEmail(email) {
@@ -754,13 +772,6 @@
         // Event listener para o formulário principal
         formulario.addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            
-            if (submitButton.disabled) {
-                statusMessageArea.textContent = "Aguardando confirmação do pagamento para enviar a análise.";
-                statusMessageArea.style.color = "orange";
-                return;
-            }
 
             submitButton.disabled = true;
             statusMessageArea.textContent = "Enviando contrato para análise...";
