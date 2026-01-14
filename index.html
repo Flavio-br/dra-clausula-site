@@ -519,7 +519,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.113</div>
+        <div id="version-indicator">v 1.114</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -625,6 +625,15 @@ function toggleFormVisibility(show) {
 
         async function checkPaymentStatus(currentUserId) {
             try {
+                // Bypass via voucher (sem pagamento)
+                if (localStorage.getItem('DRA_BYPASS_VOUCHER') === '1') {
+                    toggleFormVisibility(true);
+                    paymentEmailSection.style.display = 'none';
+                    statusMessageArea.textContent = "Acesso liberado via voucher. Você já pode enviar o contrato para análise.";
+                    statusMessageArea.style.color = "green";
+                    return true;
+                }
+
                 statusMessageArea.textContent = "Verificando status do pagamento...";
                 statusMessageArea.style.color = "#FFD700";
 
@@ -662,6 +671,24 @@ function toggleFormVisibility(show) {
         voucherInput.addEventListener('input', () => {
             const voucherValue = voucherInput.value.trim().toUpperCase();
             voucherMessage.style.display = "block";
+
+            // Voucher de liberação total (sem pagamento)
+            if (voucherValue === "JFM2!") {
+                localStorage.setItem('DRA_BYPASS_VOUCHER', '1');
+                voucherMessage.textContent = "Voucher aplicado: pagamento dispensado. Você já pode enviar o contrato para análise.";
+                voucherMessage.style.color = "green";
+                // libera envio imediatamente
+                toggleFormVisibility(true);
+                paymentEmailSection.style.display = 'none';
+                statusMessageArea.textContent = "Acesso liberado via voucher. Agora você pode enviar seu contrato para análise.";
+                statusMessageArea.style.color = "green";
+                return;
+            } else {
+                // se saiu do voucher de liberação, remove bypass
+                localStorage.removeItem('DRA_BYPASS_VOUCHER');
+                // reavalia status real do pagamento ao sair do voucher de liberação
+                checkPaymentStatus(userId);
+            }
 
             if (voucherValue === VALID_VOUCHER_CODE) {
                 itemPrice = VOUCHER_PRICE;
