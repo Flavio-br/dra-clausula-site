@@ -1,118 +1,185 @@
-<!--
-=====================================================
- Dra.Cláusula - index.html
- Versão: 1.109
- Correção definitiva de controle de tela e eventos JS
-=====================================================
--->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f6f6f6;
-            padding: 30px;
-            max-width: 600px;
-            margin: auto;
-        }
-        section, form {
-            background: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        #version {
-            text-align: right;
-            font-size: 12px;
-            color: #777;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Dra.Cláusula | Análise Inteligente de Contratos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: Arial, sans-serif; background:#f6f6f6; padding:30px; max-width:600px; margin:auto; }
+    section, form { background:#fff; padding:20px; margin-bottom:20px; border-radius:8px; }
+    button { width:100%; padding:12px; margin-top:10px; font-size:16px; cursor:pointer; }
+    button:disabled { background:#ccc; cursor:not-allowed; }
+    .msg { margin-top:10px; font-weight:bold; }
+    #version { text-align:right; font-size:12px; color:#777; }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, select { width:100%; padding:10px; margin-top:5px; }
+  </style>
 </head>
 
 <body>
-
-<section>
+  <section>
     <button id="btnTermo">Confira nosso Termo de Confidencialidade</button>
     <button id="btnComoFunciona">Como funciona nosso serviço</button>
-</section>
+  </section>
 
-<section>
-    <label>E-mail</label>
-    <input type="email" id="email"><br><br>
+  <section>
+    <label for="email">E-mail</label>
+    <input type="email" id="email" autocomplete="email" />
 
-    <label>Confirmar E-mail</label>
-    <input type="email" id="confirmEmail"><br><br>
+    <label for="confirmEmail">Confirmar E-mail</label>
+    <input type="email" id="confirmEmail" autocomplete="email" />
 
-    <label>Voucher</label>
-    <input type="text" id="voucher">
+    <label for="voucher">Voucher</label>
+    <input type="text" id="voucher" placeholder="Ex: DRA001" />
 
     <button id="btnPagamento">Realizar Pagamento - R$ 19,90</button>
-</section>
+    <div id="status" class="msg"></div>
+  </section>
 
-<form>
+  <form>
     <fieldset id="analiseFieldset" disabled>
-        <label>Nome</label>
-        <input type="text"><br><br>
+      <label>Nome</label>
+      <input type="text" id="nome" />
 
-        <label>Papel no contrato</label>
-        <select>
-            <option>Comprador</option>
-            <option>Vendedor</option>
-        </select><br><br>
+      <label>Papel no contrato</label>
+      <select id="parte">
+        <option value="">Selecione...</option>
+        <option value="comprador">Comprador</option>
+        <option value="vendedor">Vendedor</option>
+        <option value="contratante">Contratante</option>
+        <option value="contratado">Contratado</option>
+      </select>
 
-        <label>Arquivo</label>
-        <input type="file"><br><br>
+      <label>Arquivo</label>
+      <input type="file" id="arquivo" />
 
-        <button>Enviar para Análise</button>
+      <button id="btnEnviar" type="button">Enviar para Análise</button>
     </fieldset>
-</form>
+  </form>
 
-<div id="version">v 1.109</div>
+  <div id="version">v 1.110</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const btnTermo = document.getElementById("btnTermo");
-    const btnComo = document.getElementById("btnComoFunciona");
-    const btnPagamento = document.getElementById("btnPagamento");
-    const voucher = document.getElementById("voucher");
-    const fieldset = document.getElementById("analiseFieldset");
+  // ===== CONFIG =====
+  const API_BASE_URL = "https://contrato-analisador-api.onrender.com";
+  const VALID_VOUCHER_CODE = "DRA001";
+  const VOUCHER_PRICE = "0.01";
+  const DEFAULT_PRICE = "19.90";
 
-    let preco = "19.90";
+  // ===== ELEMENTS =====
+  const btnTermo = document.getElementById("btnTermo");
+  const btnComo = document.getElementById("btnComoFunciona");
+  const btnPagamento = document.getElementById("btnPagamento");
+  const voucherInput = document.getElementById("voucher");
+  const emailInput = document.getElementById("email");
+  const confirmEmailInput = document.getElementById("confirmEmail");
+  const statusEl = document.getElementById("status");
 
-    btnTermo.onclick = () => alert("Termo de Confidencialidade OK");
-    btnComo.onclick = () => alert("Como funciona OK");
+  // mantém área inferior visível e desabilitada
+  const fieldset = document.getElementById("analiseFieldset");
+  fieldset.disabled = true;
 
-    voucher.addEventListener("input", () => {
-        if (voucher.value.trim().toUpperCase() === "DRA001") {
-            preco = "0.01";
-            btnPagamento.textContent = "Realizar Pagamento - R$ 0,01";
-        } else {
-            preco = "19.90";
-            btnPagamento.textContent = "Realizar Pagamento - R$ 19,90";
-        }
-    });
+  // user_id persistente
+  const USER_ID_KEY = "draClausulaUserId";
+  let userId = localStorage.getItem(USER_ID_KEY);
+  if (!userId) {
+    userId = "user_" + Date.now() + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem(USER_ID_KEY, userId);
+  }
 
-    btnPagamento.onclick = () => {
-        alert("Pagamento disparado com valor R$ " + preco);
-        fieldset.disabled = false;
-    };
+  // preço atual
+  let itemPrice = DEFAULT_PRICE;
+
+  // ===== HELPERS =====
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+
+  const setStatus = (msg, color = "#333") => {
+    statusEl.textContent = msg;
+    statusEl.style.color = color;
+  };
+
+  // ===== INFO BUTTONS (mantém funcionando) =====
+  btnTermo.addEventListener("click", () => {
+    alert("Termo de Confidencialidade: (mantido conforme seu layout completo).");
+  });
+
+  btnComo.addEventListener("click", () => {
+    alert("Como funciona: (mantido conforme seu layout completo).");
+  });
+
+  // ===== VOUCHER =====
+  voucherInput.addEventListener("input", () => {
+    const v = voucherInput.value.trim().toUpperCase();
+
+    if (v === VALID_VOUCHER_CODE) {
+      itemPrice = VOUCHER_PRICE;
+      btnPagamento.textContent = "Realizar Pagamento - R$ 0,01";
+      setStatus("Voucher aplicado! Valor: R$ 0,01", "green");
+    } else if (v === "") {
+      itemPrice = DEFAULT_PRICE;
+      btnPagamento.textContent = "Realizar Pagamento - R$ 19,90";
+      setStatus("", "#333");
+    } else {
+      itemPrice = DEFAULT_PRICE;
+      btnPagamento.textContent = "Realizar Pagamento - R$ 19,90";
+      setStatus("Voucher inválido.", "red");
+    }
+  });
+
+  // ===== PAGAMENTO REAL =====
+  btnPagamento.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const confirmEmail = confirmEmailInput.value.trim();
+
+    if (!validateEmail(email)) {
+      setStatus("Informe um e-mail válido.", "red");
+      return;
+    }
+    if (email !== confirmEmail) {
+      setStatus("Os e-mails não coincidem.", "red");
+      return;
+    }
+
+    btnPagamento.disabled = true;
+    setStatus("Redirecionando para o pagamento...", "#b8860b");
+
+    try {
+      const formData = new FormData();
+      formData.append("item_title", "Análise de Contrato Dra. Cláusula");
+      formData.append("item_price", itemPrice);
+      formData.append("user_email", email);
+      formData.append("user_id", userId);
+
+      const resp = await fetch(`${API_BASE_URL}/api/pagamento/criar-checkout`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        setStatus(data.detail || "Erro ao criar link de pagamento.", "red");
+        btnPagamento.disabled = false;
+        return;
+      }
+
+      if (!data.checkout_url) {
+        setStatus("API não retornou checkout_url.", "red");
+        btnPagamento.disabled = false;
+        return;
+      }
+
+      // redireciona ao Mercado Pago
+      window.location.href = data.checkout_url;
+
+    } catch (err) {
+      console.error(err);
+      setStatus("Erro de conexão ao iniciar pagamento.", "red");
+      btnPagamento.disabled = false;
+    }
+  });
 
 });
 </script>
