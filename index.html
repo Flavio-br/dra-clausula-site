@@ -519,7 +519,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.111</div>
+        <div id="version-indicator">v 1.112</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -567,20 +567,16 @@
         // Função para controlar a visibilidade e habilitação do formulário principal
         // Função para controlar a habilitação do formulário principal (visível, porém desabilitado até pagamento)
 function toggleFormVisibility(show) {
-    // Mantém o formulário sempre visível
-    formulario.style.display = 'block';
+            // Mantém o formulário sempre visível
+            formulario.style.display = 'block';
 
-    // Desabilita/habilita todos os campos de uma vez
-    if (typeof analiseFieldset !== 'undefined' && analiseFieldset) {
-        analiseFieldset.disabled = !show;
-    }
-
-    // Redundância: também controla o botão
-    submitButton.disabled = !show;
-} else {
-                formulario.style.display = 'none'; // Esconde o formulário
-                submitButton.disabled = true; // Desabilita o botão de envio
+            // Desabilita/habilita todos os campos de uma vez (VISÍVEL, porém desabilitado até pagamento)
+            if (analiseFieldset) {
+                analiseFieldset.disabled = !show;
             }
+
+            // Também controla o botão de envio
+            submitButton.disabled = !show;
         }
 
         // Inicializa o formulário principal como desabilitado (visível)
