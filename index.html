@@ -532,7 +532,7 @@
             </fieldset>
 </form>
 
-        <div id="version-indicator">v 1.107</div>
+        <div id="version-indicator">v 1.108</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -692,14 +692,19 @@
         function updatePaymentButtonState() {
             const isEmailValid = validateEmail(emailInput.value);
             const emailsMatch = doEmailsMatch();
-            paymentButton.disabled = !(isEmailValid && emailsMatch);
 
+            // Mantém o botão de pagamento clicável; a validação acontece no clique.
+            // (Evita a sensação de "nada acontece" quando o botão está desabilitado.)
             emailError.style.display = isEmailValid ? 'none' : 'block';
             confirmEmailError.style.display = emailsMatch ? 'none' : 'block';
 
             if (isEmailValid) {
                 emailError.style.display = 'none';
             }
+            if (emailsMatch) {
+                confirmEmailError.style.display = 'none';
+            }
+        }
             if (emailsMatch) {
                 confirmEmailError.style.display = 'none';
             }
