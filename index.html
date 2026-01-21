@@ -519,7 +519,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.115</div>
+        <div id="version-indicator">v 1.116</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -591,6 +591,46 @@ function toggleFormVisibility(show) {
             return emailInput.value === confirmEmailInput.value;
         }
 
+        // Função para resetar o site ao estado inicial (novo atendimento)
+        function resetToInitialState() {
+            // limpa inputs principais
+            emailInput.value = '';
+            confirmEmailInput.value = '';
+            voucherInput.value = '';
+            document.getElementById("nome").value = '';
+            document.getElementById("parte").value = '';
+            const fileEl = document.getElementById("arquivo");
+            if (fileEl) fileEl.value = '';
+
+            // limpa estados persistidos
+            localStorage.removeItem(USER_EMAIL_KEY);
+            localStorage.removeItem('DRA_BYPASS_VOUCHER');
+
+            // reseta voucher/valor e mensagens
+            itemPrice = "19.90";
+            voucherMessage.textContent = "";
+            voucherMessage.style.display = "none";
+            paymentButton.textContent = "Realizar Pagamento - Apenas R$ 19,90";
+            paymentButton.style.display = 'block';
+
+            // mostra painel de pagamento novamente
+            paymentEmailSection.style.display = 'block';
+
+            // mantém painel de envio visível, porém desabilitado
+            toggleFormVisibility(false);
+
+            // fecha seções informativas abertas
+            privacyPolicySection.style.display = 'none';
+            howItWorksSection.style.display = 'none';
+
+            // reseta status
+            statusMessageArea.textContent = "Faça sua Análise";
+            statusMessageArea.style.color = "orange";
+
+            // revalida botão de pagamento (vai ficar desabilitado até e-mail válido)
+            updatePaymentButtonState();
+        }
+
         // Função para exibir a mensagem de sucesso (agora com título dinâmico)
         function showSuccessOverlay(titleHtml, messageHtml) {
             mensagemRetornoOverlay.innerHTML = `
@@ -607,19 +647,7 @@ function toggleFormVisibility(show) {
                 mensagemRetornoOverlay.style.visibility = 'hidden';
                 mensagemRetornoOverlay.style.opacity = '0';
                 mensagemRetornoOverlay.innerHTML = '';
-                
-                // Resetar o estado do site para o estado inicial de "não pago"
-                emailInput.value = ''; 
-                confirmEmailInput.value = '';
-                localStorage.removeItem(USER_EMAIL_KEY);
-                voucherInput.value = ''; 
-                itemPrice = "19.90"; 
-                paymentButton.textContent = "Realizar Pagamento - Apenas R$ 19,90"; 
-                paymentButton.style.display = 'block'; 
-                paymentButton.disabled = false; 
-                toggleFormVisibility(false); // Esconde o formulário principal
-                statusMessageArea.textContent = "Faça sua Análise"; 
-                statusMessageArea.style.color = "orange";
+                resetToInitialState();
             });
         }
 
@@ -805,6 +833,14 @@ function toggleFormVisibility(show) {
             formData.append("user_id", userId);
             formData.append("voucher", voucherInput.value || ""); 
 
+            // Abre a nova aba imediatamente (ainda no clique) para evitar bloqueio de pop-up
+            const resultWindow = window.open("", "_blank");
+            if (resultWindow) {
+                resultWindow.document.open();
+                resultWindow.document.write("<p style='font-family:Arial,sans-serif;padding:24px;'>Gerando análise... aguarde.</p>");
+                resultWindow.document.close();
+            }
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/contrato/analisar`, {
                     method: "POST",
@@ -819,8 +855,8 @@ function toggleFormVisibility(show) {
                     const emailEnviado = (data.email_enviado === true);
                     const emailErro = data.email_erro ? String(data.email_erro) : "";
 
-                    // Tenta abrir a análise em uma nova aba
-                    const w = window.open("", "_blank");
+                    // Usa a aba já aberta (se o navegador permitiu)
+                    const w = resultWindow;
 
                     const headerBadge = emailEnviado
                         ? `<span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:#e7f7ec;color:#1b6b2a;">E-mail enviado</span>`
@@ -879,8 +915,8 @@ function toggleFormVisibility(show) {
                         showSuccessOverlay("Análise pronta!", msg);
                     }
 
-                    // Limpa o formulário
-                    formulario.reset();
+                    // Volta a tela ao estado inicial para um novo atendimento
+                    resetToInitialState();
                 } else {
                     statusMessageArea.textContent = data.detail || "Erro ao analisar contrato.";
                     statusMessageArea.style.color = "red";
