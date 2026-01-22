@@ -489,6 +489,7 @@
             <button type="button" id="paymentButton" class="payment-button">
                 Realizar Pagamento - Apenas R$ 19,90
             </button>
+            <button type="button" id="btnCheckAgain" class="action-button" style="display:none;">Verificar novamente</button>
         </div>
         <form id="formulario" style="display: block;">
         <fieldset id="analiseFieldset" disabled>
@@ -519,7 +520,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.116</div>
+        <div id="version-indicator">v 1.117</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -532,7 +533,8 @@
         const submitButton = document.getElementById("submitButton");
         const analiseFieldset = document.getElementById("analiseFieldset"); 
         const paymentButton = document.getElementById("paymentButton"); 
-        const paymentEmailSection = document.getElementById("paymentEmailSection"); 
+        const paymentEmailSection = document.getElementById("paymentEmailSection");
+        const btnCheckAgain = document.getElementById("btnCheckAgain"); 
 
         const showPrivacyPolicyButton = document.getElementById("showPrivacyPolicyButton");
         const hidePrivacyPolicyButton = document.getElementById("hidePrivacyPolicyButton");
@@ -562,11 +564,13 @@
         }
 
         let itemPrice = "19.90"; // Preço padrão 
+        let paymentPollingTimer = null;
+        const PAYMENT_IN_PROGRESS_KEY = "draPaymentInProgress"; 
         
 
         // Função para controlar a visibilidade e habilitação do formulário principal
         // Função para controlar a habilitação do formulário principal (visível, porém desabilitado até pagamento)
-function toggleFormVisibility(show) {
+        function toggleFormVisibility(show) {
             // Mantém o formulário sempre visível
             formulario.style.display = 'block';
 
@@ -605,6 +609,9 @@ function toggleFormVisibility(show) {
             // limpa estados persistidos
             localStorage.removeItem(USER_EMAIL_KEY);
             localStorage.removeItem('DRA_BYPASS_VOUCHER');
+            localStorage.removeItem(PAYMENT_IN_PROGRESS_KEY);
+            if (paymentPollingTimer) { clearInterval(paymentPollingTimer); paymentPollingTimer = null; }
+            if (btnCheckAgain) btnCheckAgain.style.display = 'none';
 
             // reseta voucher/valor e mensagens
             itemPrice = "19.90";
@@ -651,47 +658,91 @@ function toggleFormVisibility(show) {
             });
         }
 
-        async function checkPaymentStatus(currentUserId) {
-            try {
-                // Bypass via voucher (sem pagamento)
-                if (localStorage.getItem('DRA_BYPASS_VOUCHER') === '1') {
-                    toggleFormVisibility(true);
-                    paymentEmailSection.style.display = 'none';
-                    statusMessageArea.textContent = "Acesso liberado via voucher. Você já pode enviar o contrato para análise.";
-                    statusMessageArea.style.color = "green";
-                    return true;
-                }
+        function startPaymentPolling(currentUserId, intervalMs = 2000, maxMs = 180000) {
+    // evita múltiplos timers
+    if (paymentPollingTimer) return;
 
-                statusMessageArea.textContent = "Verificando status do pagamento...";
-                statusMessageArea.style.color = "#FFD700";
-
-                const response = await fetch(`${API_BASE_URL}/api/pagamento/verificar-status?user_id=${currentUserId}`);
-                const data = await response.json();
-
-                if (response.ok && data.status === "approved") {
-                    toggleFormVisibility(true); // Mostra o formulário principal
-                    paymentEmailSection.style.display = 'none'; // Esconde a seção de e-mail e pagamento
-                    statusMessageArea.textContent = "Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
-                    statusMessageArea.style.color = "green";
-                    return true;
-                } else {
-                    toggleFormVisibility(false); // Garante que o formulário principal está invisível
-                    paymentEmailSection.style.display = 'block'; // Mostra a seção de e-mail e pagamento
-                    statusMessageArea.textContent = "Faça sua Análise"; 
-                    statusMessageArea.style.color = "orange";
-                    paymentButton.disabled = false; 
-                    return false;
-                }
-            } catch (error) {
-                statusMessageArea.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
-                statusMessageArea.style.color = "red";
-                paymentButton.disabled = false;
-                console.error("Erro ao verificar status de pagamento:", error);
-                toggleFormVisibility(false);
-                paymentEmailSection.style.display = 'block';
-                return false;
-            }
+    const start = Date.now();
+    paymentPollingTimer = setInterval(async () => {
+        const ok = await checkPaymentStatus(currentUserId);
+        if (ok) {
+            clearInterval(paymentPollingTimer);
+            paymentPollingTimer = null;
+            return;
         }
+        if (Date.now() - start > maxMs) {
+            clearInterval(paymentPollingTimer);
+            paymentPollingTimer = null;
+
+            statusMessageArea.textContent = "⏳ Ainda aguardando confirmação do PIX. Se você já pagou, aguarde mais um pouco e clique em 'Verificar novamente'.";
+            statusMessageArea.style.color = "orange";
+            paymentButton.disabled = false;
+            if (btnCheckAgain) btnCheckAgain.style.display = "inline-block";
+        }
+    }, intervalMs);
+}
+
+async function checkPaymentStatus(currentUserId)(currentUserId) {
+    try {
+        // Bypass via voucher (sem pagamento)
+        if (localStorage.getItem('DRA_BYPASS_VOUCHER') === '1') {
+        toggleFormVisibility(true);
+        paymentEmailSection.style.display = 'none';
+        statusMessageArea.textContent = "Acesso liberado via voucher. Você já pode enviar o contrato para análise.";
+        statusMessageArea.style.color = "green";
+        return true;
+        }
+
+        statusMessageArea.textContent = "Verificando status do pagamento...";
+        statusMessageArea.style.color = "#FFD700";
+
+        const response = await fetch(`${API_BASE_URL}/api/pagamento/verificar-status?user_id=${currentUserId}`);
+        const data = await response.json();
+
+        if (response.ok && data.status === "approved") {
+        toggleFormVisibility(true);
+        paymentEmailSection.style.display = 'none';
+        statusMessageArea.textContent = "✅ Pagamento confirmado! Agora você pode enviar seu contrato para análise.";
+        localStorage.removeItem(PAYMENT_IN_PROGRESS_KEY);
+        if (btnCheckAgain) btnCheckAgain.style.display = "none";
+        if (paymentPollingTimer) { clearInterval(paymentPollingTimer); paymentPollingTimer = null; }
+        statusMessageArea.style.color = "green";
+        return true;
+        }
+
+        // ✅ NOVO: PIX pendente
+        if (response.ok && data.status === "pending") {
+        toggleFormVisibility(false);
+        paymentEmailSection.style.display = 'block';
+        paymentButton.disabled = true; // evita criar novo checkout enquanto aguarda
+
+        statusMessageArea.textContent = "⏳ PIX pendente. Aguarde a confirmação do pagamento (isso pode levar alguns minutos).";
+        if (btnCheckAgain) btnCheckAgain.style.display = "inline-block";
+        localStorage.setItem(PAYMENT_IN_PROGRESS_KEY, "1");
+        startPaymentPolling(currentUserId);
+        statusMessageArea.style.color = "#FFD700";
+        return false;
+        }
+
+        // outros status (rejected, cancelled, not_found, etc.)
+        toggleFormVisibility(false);
+        paymentEmailSection.style.display = 'block';
+        statusMessageArea.textContent = data.message || "Pagamento não aprovado ou não encontrado. Tente novamente.";
+        statusMessageArea.style.color = "orange";
+        paymentButton.disabled = false;
+        return false;
+
+    } catch (error) {
+        statusMessageArea.textContent = "Erro ao verificar status do pagamento. Tente novamente.";
+        statusMessageArea.style.color = "red";
+        paymentButton.disabled = false;
+        console.error("Erro ao verificar status de pagamento:", error);
+        toggleFormVisibility(false);
+        paymentEmailSection.style.display = 'block';
+        return false;
+    }
+    }
+
         
         const VALID_VOUCHER_CODE = "DRA001";
         const VOUCHER_PRICE = "0.01";
@@ -759,6 +810,14 @@ function toggleFormVisibility(show) {
         // Inicializa o estado do botão de pagamento ao carregar a página
         updatePaymentButtonState();
 
+        if (btnCheckAgain) {
+            btnCheckAgain.addEventListener("click", () => {
+                statusMessageArea.textContent = "Verificando status do pagamento...";
+                statusMessageArea.style.color = "#FFD700";
+                startPaymentPolling(userId);
+            });
+        }
+
         // Event listener para o botão "Realizar Pagamento"
         paymentButton.addEventListener("click", async () => {
             const isEmailValid = validateEmail(emailInput.value);
@@ -803,6 +862,7 @@ function toggleFormVisibility(show) {
                 const data = await response.json();
 
                 if (response.ok) {
+                    localStorage.setItem(PAYMENT_IN_PROGRESS_KEY, "1");
                     window.location.href = data.checkout_url; 
                 } else {
                     statusMessageArea.textContent = data.detail || "Erro ao criar link de pagamento.";
@@ -953,15 +1013,21 @@ function toggleFormVisibility(show) {
         // Verifica o status de pagamento ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
     checkPaymentStatus(userId);
+    if (localStorage.getItem(PAYMENT_IN_PROGRESS_KEY) === '1') {
+        startPaymentPolling(userId);
+        if (btnCheckAgain) btnCheckAgain.style.display = 'inline-block';
+    }
 });
 
 // Revalida quando o usuário volta do Mercado Pago (aba ganha foco / volta a ficar visível)
 window.addEventListener('focus', () => {
     checkPaymentStatus(userId);
+    if (localStorage.getItem(PAYMENT_IN_PROGRESS_KEY) === '1') startPaymentPolling(userId);
 });
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         checkPaymentStatus(userId);
+        if (localStorage.getItem(PAYMENT_IN_PROGRESS_KEY) === '1') startPaymentPolling(userId);
     }
 });
     </script>
