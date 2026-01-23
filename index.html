@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Saco, Os botões e o voucher pararam de funcionar... A chamada do MP também. Vc fez alguma camada no index<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -520,7 +520,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.117</div>
+        <div id="version-indicator">v 1.118</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -682,7 +682,7 @@
     }, intervalMs);
 }
 
-async function checkPaymentStatus(currentUserId)(currentUserId) {
+async function checkPaymentStatus(currentUserId) {
     try {
         // Bypass via voucher (sem pagamento)
         if (localStorage.getItem('DRA_BYPASS_VOUCHER') === '1') {
