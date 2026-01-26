@@ -490,7 +490,7 @@
             </button>
             <button type="button" id="btnCheckAgain" class="action-button" style="display:none;">Verificar novamente</button>
         </div>
-        <form id="formulario" style="display: block;">
+        <form id="formulario" style="display: none;">
         <fieldset id="analiseFieldset" disabled>
             <label for="nome">Seu Nome:</label>
             <input type="text" id="nome" name="nome" required>
@@ -519,7 +519,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.118</div>
+        <div id="version-indicator">v 1.119</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -570,13 +570,17 @@
         // Função para controlar a visibilidade e habilitação do formulário principal
         // Função para controlar a habilitação do formulário principal (visível, porém desabilitado até pagamento)
         function toggleFormVisibility(show) {
-            // Mantém o formulário sempre visível
-            formulario.style.display = 'block';
-
-            // Desabilita/habilita todos os campos de uma vez (VISÍVEL, porém desabilitado até pagamento)
-            if (analiseFieldset) {
-                analiseFieldset.disabled = !show;
-            }
+    // Mostra/oculta a área de envio conforme pagamento (evita ficar “aberta”)
+    if (show) {
+        formulario.style.display = 'block';
+        if (analiseFieldset) analiseFieldset.disabled = false;
+        submitButton.disabled = false;
+    } else {
+        if (analiseFieldset) analiseFieldset.disabled = true;
+        submitButton.disabled = true;
+        formulario.style.display = 'none';
+    }
+}
 
             // Também controla o botão de envio
             submitButton.disabled = !show;
@@ -896,7 +900,67 @@ async function checkPaymentStatus(currentUserId) {
             const resultWindow = window.open("", "_blank");
             if (resultWindow) {
                 resultWindow.document.open();
-                resultWindow.document.write("<p style='font-family:Arial,sans-serif;padding:24px;'>Gerando análise... aguarde.</p>");
+                resultWindow.document.write(`<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerando análise…</title>
+  <style>
+    body{font-family:Arial, sans-serif; background:#fafafa; margin:0;}
+    .wrap{max-width:720px; margin:0 auto; padding:28px;}
+    .card{background:#fff; border-radius:12px; padding:22px; box-shadow:0 2px 14px rgba(0,0,0,.08);}
+    .row{display:flex; gap:14px; align-items:center;}
+    .spinner{width:28px; height:28px; border:3px solid #e5e5e5; border-top-color:#3498db; border-radius:50%; animation:spin 0.9s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .title{font-size:18px; margin:0;}
+    .sub{color:#666; margin:8px 0 0 0; line-height:1.5;}
+    .steps{margin-top:16px; padding-left:18px; color:#444;}
+    .muted{color:#777; font-size:12px; margin-top:14px;}
+    .bar{height:8px; background:#eee; border-radius:999px; overflow:hidden; margin-top:14px;}
+    .bar > div{height:100%; width:35%; background:#3498db; border-radius:999px; animation:move 1.4s ease-in-out infinite;}
+    @keyframes move{0%{transform:translateX(-60%)} 50%{transform:translateX(140%)} 100%{transform:translateX(-60%)}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div class="spinner"></div>
+        <div>
+          <p class="title"><strong>Gerando sua análise…</strong></p>
+          <p class="sub" id="msg">Estamos lendo o documento e identificando cláusulas importantes.</p>
+        </div>
+      </div>
+
+      <div class="bar"><div></div></div>
+
+      <ol class="steps">
+        <li>Recebendo o arquivo</li>
+        <li>Processando com IA</li>
+        <li>Montando o relatório</li>
+      </ol>
+
+      <div class="muted">Você pode manter esta aba aberta. Assim que terminar, a análise aparecerá aqui automaticamente.</div>
+    </div>
+  </div>
+
+  <script>
+    const msgs = [
+      "Estamos lendo o documento e identificando cláusulas importantes.",
+      "Analisando riscos, obrigações e pontos de atenção para o seu papel no contrato.",
+      "Gerando sugestões e recomendações de ajustes.",
+      "Finalizando e formatando o relatório…"
+    ];
+    let i = 0;
+    setInterval(() => {
+      i = (i + 1) % msgs.length;
+      const el = document.getElementById('msg');
+      if (el) el.textContent = msgs[i];
+    }, 2200);
+  </script>
+</body>
+</html>`);
                 resultWindow.document.close();
             }
 
@@ -911,15 +975,17 @@ async function checkPaymentStatus(currentUserId) {
                 if (response.ok) {
                     // ✅ A API agora devolve o HTML da análise (mesmo se o e-mail falhar)
                     const analysisHtml = data.html || "";
-                    const emailEnviado = (data.email_enviado === true);
-                    const emailErro = data.email_erro ? String(data.email_erro) : "";
+                    const emailEnviado = (data.email_enviado === true || data.email_enviado === "true" || data.email_enviado === 1 || data.email_enviado === "1");
+                    const emailErro = (data.email_erro && String(data.email_erro).trim().length > 0) ? String(data.email_erro) : "";
 
                     // Usa a aba já aberta (se o navegador permitiu)
                     const w = resultWindow;
 
                     const headerBadge = emailEnviado
-                        ? `<span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:#e7f7ec;color:#1b6b2a;">E-mail enviado</span>`
-                        : `<span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:#fff4e5;color:#8a5200;">E-mail não enviado</span>`;
+                        ? `<span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:#e7f7ec;color:#1b6b2a;">✅ E-mail enviado</span>`
+                        : (emailErro
+                            ? `<span style="display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:#fff4e5;color:#8a5200;">⚠️ E-mail não enviado</span>`
+                            : ``);
 
                     const safeEmailErro = emailErro.replaceAll("<","&lt;").replaceAll(">","&gt;");
 
@@ -944,7 +1010,7 @@ async function checkPaymentStatus(currentUserId) {
     ${headerBadge}
   </div>
 
-  ${(!emailEnviado && safeEmailErro) ? `<div class="box"><strong>Atenção:</strong> a análise foi gerada, mas o envio de e-mail falhou.<br><span class="muted">${safeEmailErro}</span></div><hr>` : ""}
+  ${(emailErro && safeEmailErro) ? `<div class="box"><strong>Atenção:</strong> a análise foi gerada, mas o envio de e-mail falhou.<br><span class="muted">${safeEmailErro}</span></div><hr>` : ""}
 
   <div class="box">
     ${analysisHtml}
@@ -960,10 +1026,9 @@ async function checkPaymentStatus(currentUserId) {
                         statusMessageArea.textContent = "Análise concluída! Abrimos o resultado em uma nova aba.";
                         statusMessageArea.style.color = "green";
 
-                        // Se o e-mail não foi enviado, avisa o usuário (sem bloquear a análise)
-                        if (!emailEnviado) {
-                            // mantém só uma dica leve no status; detalhes ficam na aba da análise
-                            statusMessageArea.textContent += " (E-mail não enviado — veja o resultado na aba.)";
+                        // Se o e-mail falhou de fato, avisa sem bloquear a análise
+                        if (!emailEnviado && emailErro) {
+                            statusMessageArea.textContent += " (⚠️ Não conseguimos enviar o e-mail — veja o resultado na aba.)";
                         }
                     } else {
                         // Pop-up bloqueado: mostra mensagem e mantém a análise disponível via overlay
