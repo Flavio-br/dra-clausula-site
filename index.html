@@ -490,7 +490,7 @@
             </button>
             <button type="button" id="btnCheckAgain" class="action-button" style="display:none;">Verificar novamente</button>
         </div>
-        <form id="formulario" style="display: none;">
+        <form id="formulario" style="display: block;">
         <fieldset id="analiseFieldset" disabled>
             <label for="nome">Seu Nome:</label>
             <input type="text" id="nome" name="nome" required>
@@ -519,7 +519,7 @@
         </fieldset>
         </form>
 
-        <div id="version-indicator">v 1.122</div>
+        <div id="version-indicator">v 1.123</div>
     </div> <div id="status-message-area"></div> <div id="mensagem-retorno"></div> <script>
         // Referências aos elementos HTML
         const formulario = document.getElementById("formulario");
@@ -570,17 +570,18 @@
         // Função para controlar a visibilidade e habilitação do formulário principal
         // Função para controlar a habilitação do formulário principal (visível, porém desabilitado até pagamento)
         function toggleFormVisibility(show) {
-    // Mostra/oculta a área de envio conforme pagamento (evita ficar “aberta”)
-    if (show) {
-        formulario.style.display = 'block';
-        if (analiseFieldset) analiseFieldset.disabled = false;
-        submitButton.disabled = false;
-    } else {
-        if (analiseFieldset) analiseFieldset.disabled = true;
-        submitButton.disabled = true;
-        formulario.style.display = 'none';
-    }
-}
+            // Mantém o formulário sempre visível
+            formulario.style.display = 'block';
+
+            // Desabilita/habilita todos os campos de uma vez (VISÍVEL, porém desabilitado até pagamento)
+            if (analiseFieldset) {
+                analiseFieldset.disabled = !show;
+            }
+
+            // Também controla o botão de envio
+            submitButton.disabled = !show;
+        }
+
         // Inicializa o formulário principal como desabilitado (visível)
         toggleFormVisibility(false);
 
@@ -678,7 +679,10 @@
             if (btnCheckAgain) btnCheckAgain.style.display = "inline-block";
         }
     }, intervalMs);
+    // Fecha a área de envio (fica só a tela inicial)
+    formulario.style.display = 'none';
 }
+
 
 async function checkPaymentStatus(currentUserId) {
     try {
@@ -739,7 +743,9 @@ async function checkPaymentStatus(currentUserId) {
         paymentEmailSection.style.display = 'block';
         return false;
     }
+    }
 
+        
         const VALID_VOUCHER_CODE = "DRA001";
         const VOUCHER_PRICE = "0.01";
 
@@ -934,7 +940,7 @@ async function checkPaymentStatus(currentUserId) {
         <li>Montando o relatório</li>
       </ol>
 
-      <div class="muted">Você pode manter esta aba aberta. Assim que terminar, a análise aparecerá aqui automaticamente.</div>
+      <div class="muted">Mantenha esta aba aberta. Assim que terminar, a análise aparecerá aqui automaticamente.</div>
     </div>
   </div>
 
@@ -1019,9 +1025,10 @@ async function checkPaymentStatus(currentUserId) {
                         statusMessageArea.textContent = "Análise concluída! Abrimos o resultado em uma nova aba.";
                         statusMessageArea.style.color = "green";
 
-                        // Se o e-mail falhou de fato, avisa sem bloquear a análise
-                        if (!emailEnviado && emailErro) {
-                            statusMessageArea.textContent += " (⚠️ Não conseguimos enviar o e-mail — veja o resultado na aba.)";
+                        // Se o e-mail não foi enviado, avisa o usuário (sem bloquear a análise)
+                        if (!emailEnviado) {
+                            // mantém só uma dica leve no status; detalhes ficam na aba da análise
+                            statusMessageArea.textContent += " (E-mail não enviado — veja o resultado na aba.)";
                         }
                     } else {
                         // Pop-up bloqueado: mostra mensagem e mantém a análise disponível via overlay
